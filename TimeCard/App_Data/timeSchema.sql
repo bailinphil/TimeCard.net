@@ -4,22 +4,22 @@ drop table if exists user;
 drop table if exists department;
 
 create table department(
-  id int(10) not null primary key
+  id integer not null primary key autoincrement
   , title varchar(255) not null
 );
 
 create table user (
-  id int(10) not null primary key
+  id integer not null primary key autoincrement
   , username varchar(40) not null
-  , passwordhash char(32) not null
+  , password varchar(40) not null
   , name varchar( 100 ) not null
   , isadmin tinyint not null
-  , department_id int(10)
+  , departmentid integer
   /*, foreign key usertodepartment (department_id) references department(id) on delete set null*/
 );
 
 create table workday (
-  userid int(10) not null
+  userid integer not null
   , day date not null
   , startin timestamp null
   , lunchout timestamp null
@@ -38,17 +38,17 @@ create table holiday (
 );
   
 
-insert into department (id, title)
-values (1, "accounting")
-,      (2, "human resources" )
-,      (3, "field work" );
+insert into department (title)
+values ("accounting")
+,      ("human resources" )
+,      ("field work" );
 
 insert into user 
-  (id, username, passwordhash, name, isadmin, department_id) 
+  (username, password, name, isadmin, departmentid) 
 values 
-    (1,  "admin", "abc123", "phil", 1, null )
-  , (2,  "honestabe", "password1", "adam", 0, 2 )
-  , (3,  "lazybob", "password2", "bob", 0, 2 );
+    ("admin", "abc123", "phil", 1, null )
+  , ("honestabe", "password1", "abe", 0, 2 )
+  , ("lazybob", "password2", "bob", 0, 2 );
 
 insert into holiday (day, name)
 values 

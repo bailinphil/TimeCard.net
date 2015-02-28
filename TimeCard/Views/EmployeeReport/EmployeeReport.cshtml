@@ -1,0 +1,22 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title></title>
+</head>
+<body>
+    <h1>Report for @ViewBag.Workday.User.Name</h1>
+    <h2>@ViewBag.Workday.Date.Date</h2>
+    <table>
+        <tr><th>Start Time</th><td>@ViewBag.Workday.StartIn</td></tr>
+        <tr><th>Lunch Out</th><td>@ViewBag.Workday.LunchOut</td></tr>
+        <tr><th>Lunch Return</th><td>@ViewBag.Workday.LunchIn</td></tr>
+        <tr><th>End Time</th><td>@ViewBag.Workday.EndOut</td></tr>
+    </table>
+</body>
+</html>
