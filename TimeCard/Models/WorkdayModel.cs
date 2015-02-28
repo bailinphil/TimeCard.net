@@ -22,7 +22,6 @@ namespace TimeCard.Models
 
         public static WorkdayModel Load(SQLiteConnection conn, int userId, DateTime date)
         {
-            WorkdayModel result = new WorkdayModel();
             SQLiteCommand query = null;
             SQLiteDataReader reader = null;
             try
@@ -53,16 +52,7 @@ namespace TimeCard.Models
 
                 if (reader.Read())
                 {
-                    UserModel user = UserModel.LoadFromReader(reader);
-                    result.User = user;
-                    result.Date = ((DateTime) reader["day"]).Date;
-                    result.StartIn = (DateTime) reader["startIn"];
-                    result.LunchOut = (DateTime) reader["lunchOut"];
-                    result.LunchIn = (DateTime)reader["lunchIn"];
-                    result.EndOut = (DateTime)reader["endOut"];
-                    result.IsPaidTimeOff = ((byte)reader["isPaidTimeOff"]) > 0;
-                    result.IsHoliday = ((byte)reader["isHoliday"]) > 0;
-                    return result;
+                    return LoadFromReader(reader);
                 }
                 else
                 {
@@ -73,6 +63,21 @@ namespace TimeCard.Models
             {
                 reader.Close();
             }
+        }
+
+        public static WorkdayModel LoadFromReader(SQLiteDataReader reader)
+        {
+            WorkdayModel result = new WorkdayModel();
+            UserModel user = UserModel.LoadFromReader(reader);
+            result.User = user;
+            result.Date = ((DateTime)reader["day"]).Date;
+            result.StartIn = (DateTime)reader["startIn"];
+            result.LunchOut = (DateTime)reader["lunchOut"];
+            result.LunchIn = (DateTime)reader["lunchIn"];
+            result.EndOut = (DateTime)reader["endOut"];
+            result.IsPaidTimeOff = ((byte)reader["isPaidTimeOff"]) > 0;
+            result.IsHoliday = ((byte)reader["isHoliday"]) > 0;
+            return result;
         }
 
     }
