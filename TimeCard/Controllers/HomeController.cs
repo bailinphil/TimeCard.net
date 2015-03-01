@@ -15,6 +15,12 @@ namespace TimeCard.Controllers
     {
         public ActionResult Index()
         {
+            UserModel user = HoursControllerUtil.GetCurrentUser(User);
+
+            if (user != null && user.IsAdmin)
+            {
+                return View("AdminHome");
+            } 
             return View();
         }
 

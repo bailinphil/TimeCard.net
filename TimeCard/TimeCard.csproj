@@ -256,6 +256,7 @@
     <Content Include="Wireframes\hours-wireframe.bmml" />
     <Content Include="Wireframes\hours.pdf" />
     <Content Include="Wireframes\worker-states.bmml" />
+    <Content Include="Views\Home\AdminHome.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="fonts\glyphicons-halflings-regular.woff" />
