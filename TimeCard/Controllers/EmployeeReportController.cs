@@ -21,6 +21,7 @@ namespace TimeCard.Controllers
             if (day != null)
             {
                 ViewBag.Workday = day;
+                ViewBag.User = day.User;
             }
             return View("EmployeeReport");
         }

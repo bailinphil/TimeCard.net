@@ -10,8 +10,19 @@
     <title></title>
 </head>
 <body>
-    <h1>Report for @ViewBag.Workday.User.Name</h1>
-    <h2>@ViewBag.Workday.Date.Date</h2>
+    <div class="header-bar">
+        <p class="left">
+            Welcome back, @ViewBag.User.Name
+        </p>
+        <p class="right">
+            <a href="#">Log Out</a>
+        </p>
+    </div>
+
+    <div class="WorkerStatus">
+        <h1>You're currently @ViewBag.User.Name</h1>
+    </div>
+
     <table>
         <tr><th>Start Time</th><td>@ViewBag.Workday.StartIn</td></tr>
         <tr><th>Lunch Out</th><td>@ViewBag.Workday.LunchOut</td></tr>

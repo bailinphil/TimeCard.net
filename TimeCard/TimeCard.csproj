@@ -246,6 +246,9 @@
     <Content Include="Views\Manage\VerifyPhoneNumber.cshtml" />
     <Content Include="Views\Shared\Lockout.cshtml" />
     <Content Include="Views\Shared\_LoginPartial.cshtml" />
+    <Content Include="Wireframes\hours-wireframe.bmml" />
+    <Content Include="Wireframes\hours.pdf" />
+    <Content Include="Wireframes\worker-states.bmml" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
