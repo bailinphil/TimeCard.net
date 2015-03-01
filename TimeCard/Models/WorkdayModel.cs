@@ -70,11 +70,11 @@ namespace TimeCard.Models
             WorkdayModel result = new WorkdayModel();
             UserModel user = UserModel.LoadFromReader(reader);
             result.User = user;
-            result.Date = ((DateTime)reader["day"]).Date;
-            result.StartIn = (DateTime)reader["startIn"];
-            result.LunchOut = (DateTime)reader["lunchOut"];
-            result.LunchIn = (DateTime)reader["lunchIn"];
-            result.EndOut = (DateTime)reader["endOut"];
+            result.Date = reader["day"] == DBNull.Value ? new DateTime() : ((DateTime)reader["day"]).Date;
+            result.StartIn = reader["startIn"] == DBNull.Value ? new DateTime() : (DateTime)reader["startIn"];
+            result.LunchOut = reader["lunchOut"] == DBNull.Value ? new DateTime() : (DateTime)reader["lunchOut"];
+            result.LunchIn = reader["lunchIn"] == DBNull.Value ? new DateTime() : (DateTime)reader["lunchIn"];
+            result.EndOut = reader["endOut"] == DBNull.Value ? new DateTime() : (DateTime)reader["endOut"];
             result.IsPaidTimeOff = ((byte)reader["isPaidTimeOff"]) > 0;
             result.IsHoliday = ((byte)reader["isHoliday"]) > 0;
             return result;

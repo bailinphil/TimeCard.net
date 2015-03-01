@@ -10,11 +10,18 @@
         <h1>You're currently @ViewBag.User.Name</h1>
     </div>
 
-    <table>
-        <tr><th>Start Time</th><td>@ViewBag.Workday.StartIn</td></tr>
-        <tr><th>Lunch Out</th><td>@ViewBag.Workday.LunchOut</td></tr>
-        <tr><th>Lunch Return</th><td>@ViewBag.Workday.LunchIn</td></tr>
-        <tr><th>End Time</th><td>@ViewBag.Workday.EndOut</td></tr>
-    </table>
+        @if (ViewBag.Workday.IsHoliday) {
+            <p>holiday!</p>
+        } else if(ViewBag.Workday.IsPaidTimeOff) {
+            <p>holiday!</p>
+        }
+        else {
+            <table>
+                <tr><th>Start Time</th><td>@ViewBag.Workday.StartIn</td></tr>
+                <tr><th>Lunch Out</th><td>@ViewBag.Workday.LunchOut</td></tr>
+                <tr><th>Lunch Return</th><td>@ViewBag.Workday.LunchIn</td></tr>
+                <tr><th>End Time</th><td>@ViewBag.Workday.EndOut</td></tr>
+            </table>
+        }
 </body>
 </html>

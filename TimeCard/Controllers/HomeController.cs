@@ -5,6 +5,9 @@ using System.Web;
 using System.Web.Mvc;
 
 using System.Data.SQLite;
+using TimeCard.Models;
+using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.EntityFramework;
 
 namespace TimeCard.Controllers
 {
@@ -12,7 +15,6 @@ namespace TimeCard.Controllers
     {
         public ActionResult Index()
         {
-            ViewBag.Days = "Welcome";
             return View();
         }
 

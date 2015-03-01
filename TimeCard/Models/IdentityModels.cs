@@ -16,6 +16,8 @@ namespace TimeCard.Models
             // Add custom user claims here
             return userIdentity;
         }
+
+        public int SQLiteUserId { get; set; }
     }
 
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>

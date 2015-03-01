@@ -172,10 +172,16 @@
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\EmployeeReportController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\HoursControllerUtil.cs" />
     <Compile Include="Controllers\ManageController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201503011602247_SqlLiteUserId.cs" />
+    <Compile Include="Migrations\201503011602247_SqlLiteUserId.Designer.cs">
+      <DependentUpon>201503011602247_SqlLiteUserId.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\ManageViewModels.cs" />
@@ -187,6 +193,8 @@
     <Compile Include="Startup.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="App_Data\aspnet-TimeCard-20150224090621.mdf" />
+    <Content Include="App_Data\aspnet-TimeCard-20150224090621_log.ldf" />
     <Content Include="App_Data\timeSchema.sql" />
     <Content Include="App_Data\workday-inserts.sql" />
     <Content Include="Content\bootstrap.css" />
@@ -249,13 +257,17 @@
     <Content Include="Wireframes\hours.pdf" />
     <Content Include="Wireframes\worker-states.bmml" />
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
     <Content Include="fonts\glyphicons-halflings-regular.woff" />
     <Content Include="fonts\glyphicons-halflings-regular.ttf" />
     <Content Include="fonts\glyphicons-halflings-regular.eot" />
     <Content Include="packages.config" />
     <None Include="Project_Readme.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Migrations\201503011602247_SqlLiteUserId.resx">
+      <DependentUpon>201503011602247_SqlLiteUserId.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

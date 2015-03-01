@@ -13,16 +13,18 @@ namespace TimeCard.Controllers
         // GET: EmployeeReport
         public ActionResult Index()
         {
+            int userId = HoursControllerUtil.GetCurrentUserId(User);
+            if (userId == 0) return Redirect("/");
+
             SQLiteConnection conn = new SQLiteConnection(@"Data Source=D:\code\TimeCard\TimeCard\TimeCard\App_Data\time.db;Version=3;");
             conn.Open();
-            WorkdayModel day = WorkdayModel.Load(conn, 2, new DateTime( 2014,11,3 ));
+            WorkdayModel day = WorkdayModel.Load(conn, userId, new DateTime( 2014,11,3 ));
             conn.Close();
 
-            if (day != null)
-            {
-                ViewBag.Workday = day;
-                ViewBag.User = day.User;
-            }
+            if (day == null) return Redirect("/");
+
+            ViewBag.Workday = day;
+            ViewBag.User = day.User;
             return View("EmployeeReport");
         }
     }
