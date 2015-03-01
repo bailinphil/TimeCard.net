@@ -10,7 +10,6 @@ namespace TimeCard.Controllers
     public class HoursControllerUtil
     {
         private static SQLiteConnection conn = null;
-
         public static SQLiteConnection GetConnection()
         {
             if (conn == null)
@@ -21,14 +20,7 @@ namespace TimeCard.Controllers
             }
             else
             {
-                if (conn.State == ConnectionState.Open)
-                {
-                    return conn;
-                }
-                else
-                {
-                    return conn.OpenAndReturn();
-                }
+                return (conn.State == ConnectionState.Open) ? conn : conn.OpenAndReturn();
             }
             
         }

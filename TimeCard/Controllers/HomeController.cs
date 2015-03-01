@@ -17,11 +17,14 @@ namespace TimeCard.Controllers
         {
             UserModel user = HoursControllerUtil.GetCurrentUser(User);
 
-            if (user != null && user.IsAdmin)
+            if (user == null)
             {
-                return View("AdminHome");
+                return View();
+            }
+            {
+                ViewBag.User = user;
+                return user.IsAdmin ? View("AdminHome") : View("EmployeeHome");
             } 
-            return View();
         }
 
         public ActionResult About()
