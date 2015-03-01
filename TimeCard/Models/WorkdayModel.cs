@@ -20,7 +20,7 @@ namespace TimeCard.Models
 
         private const string LOAD_QUERY = @"select * from workday join user on workday.userid = user.id where userId = @id and day = @day";
 
-        public static WorkdayModel Load(SQLiteConnection conn, int userId, DateTime date)
+        public static WorkdayModel Load(SQLiteConnection conn, long userId, DateTime date)
         {
             SQLiteCommand query = null;
             SQLiteDataReader reader = null;
@@ -70,11 +70,11 @@ namespace TimeCard.Models
             WorkdayModel result = new WorkdayModel();
             UserModel user = UserModel.LoadFromReader(reader);
             result.User = user;
-            result.Date = reader["day"] == DBNull.Value ? new DateTime() : ((DateTime)reader["day"]).Date;
-            result.StartIn = reader["startIn"] == DBNull.Value ? new DateTime() : (DateTime)reader["startIn"];
-            result.LunchOut = reader["lunchOut"] == DBNull.Value ? new DateTime() : (DateTime)reader["lunchOut"];
-            result.LunchIn = reader["lunchIn"] == DBNull.Value ? new DateTime() : (DateTime)reader["lunchIn"];
-            result.EndOut = reader["endOut"] == DBNull.Value ? new DateTime() : (DateTime)reader["endOut"];
+            result.Date = reader["day"] == DBNull.Value ? DateTime.MaxValue : ((DateTime)reader["day"]).Date;
+            result.StartIn = reader["startIn"] == DBNull.Value ? DateTime.MaxValue : (DateTime)reader["startIn"];
+            result.LunchOut = reader["lunchOut"] == DBNull.Value ? DateTime.MaxValue : (DateTime)reader["lunchOut"];
+            result.LunchIn = reader["lunchIn"] == DBNull.Value ? DateTime.MaxValue : (DateTime)reader["lunchIn"];
+            result.EndOut = reader["endOut"] == DBNull.Value ? DateTime.MaxValue : (DateTime)reader["endOut"];
             result.IsPaidTimeOff = ((byte)reader["isPaidTimeOff"]) > 0;
             result.IsHoliday = ((byte)reader["isHoliday"]) > 0;
             return result;

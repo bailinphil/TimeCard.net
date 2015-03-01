@@ -15,7 +15,7 @@ namespace TimeCard.Controllers
     {
         public ActionResult Index()
         {
-            UserModel user = HoursControllerUtil.GetCurrentUser(User);
+            UserModel user = HoursUtil.GetCurrentUser(User);
 
             if (user == null)
             {

@@ -13,10 +13,10 @@ namespace TimeCard.Controllers
         // GET: EmployeeReport
         public ActionResult Index()
         {
-            int userId = HoursControllerUtil.GetCurrentUserId(User);
+            int userId = HoursUtil.GetCurrentUserId(User);
             if (userId == 0) return Redirect("/");
 
-            SQLiteConnection conn = HoursControllerUtil.GetConnection();
+            SQLiteConnection conn = HoursUtil.GetConnection();
             WorkdayModel day = WorkdayModel.Load(conn, userId, new DateTime( 2014,11,3 ));
             conn.Close();
 

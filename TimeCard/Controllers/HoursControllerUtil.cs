@@ -7,7 +7,7 @@ using TimeCard.Models;
 
 namespace TimeCard.Controllers
 {
-    public class HoursControllerUtil
+    public class HoursUtil
     {
         private static SQLiteConnection conn = null;
         public static SQLiteConnection GetConnection()
