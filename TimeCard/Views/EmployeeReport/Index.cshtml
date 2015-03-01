@@ -1,27 +1,21 @@
-﻿<!DOCTYPE html>
+﻿@{
+    ViewBag.Title = "Report";
+}
 
-<html>
-<head>
-    <meta name="viewport" content="width=device-width" />
-    <title></title>
-</head>
-<body>
-    <div class="WorkerStatus">
-        <h1>You're currently @ViewBag.User.Name</h1>
-    </div>
+<div class="WorkerStatus">
+    <h2>You're currently @ViewBag.User.Name</h2>
+</div>
 
-        @if (ViewBag.Workday.IsHoliday) {
-            <p>holiday!</p>
-        } else if(ViewBag.Workday.IsPaidTimeOff) {
-            <p>holiday!</p>
-        }
-        else {
-            <table>
-                <tr><th>Start Time</th><td>@ViewBag.Workday.StartIn</td></tr>
-                <tr><th>Lunch Out</th><td>@ViewBag.Workday.LunchOut</td></tr>
-                <tr><th>Lunch Return</th><td>@ViewBag.Workday.LunchIn</td></tr>
-                <tr><th>End Time</th><td>@ViewBag.Workday.EndOut</td></tr>
-            </table>
-        }
-</body>
-</html>
+@if (ViewBag.Workday.IsHoliday) {
+    <p>holiday!</p>
+} else if(ViewBag.Workday.IsPaidTimeOff) {
+    <p>holiday!</p>
+}
+else {
+    <table>
+        <tr><th>Start Time</th><td>@ViewBag.Workday.StartIn</td></tr>
+        <tr><th>Lunch Out</th><td>@ViewBag.Workday.LunchOut</td></tr>
+        <tr><th>Lunch Return</th><td>@ViewBag.Workday.LunchIn</td></tr>
+        <tr><th>End Time</th><td>@ViewBag.Workday.EndOut</td></tr>
+    </table>
+}
