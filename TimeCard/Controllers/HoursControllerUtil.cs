@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
+using System.Data;
 using System.Data.SQLite;
 using System.Security.Principal;
 using TimeCard.Models;
@@ -10,12 +11,26 @@ namespace TimeCard.Controllers
     {
         private static SQLiteConnection conn = null;
 
-        public static SQLiteConnection getConnection()
+        public static SQLiteConnection GetConnection()
         {
-            if (conn != null) return conn;
-            conn = new SQLiteConnection(@"Data Source=D:\code\TimeCard\TimeCard\TimeCard\App_Data\time.db;Version=3;");
-            conn.Open();
-            return conn;
+            if (conn == null)
+            {
+                conn = new SQLiteConnection(@"Data Source=|DataDirectory|time.db;Version=3;");
+                conn.Open();
+                return conn;
+            }
+            else
+            {
+                if (conn.State == ConnectionState.Open)
+                {
+                    return conn;
+                }
+                else
+                {
+                    return conn.OpenAndReturn();
+                }
+            }
+            
         }
 
         public static int GetCurrentUserId(IPrincipal user)
@@ -32,7 +47,7 @@ namespace TimeCard.Controllers
             if (user == null || !user.Identity.IsAuthenticated) return null;
 
             int id = GetCurrentUserId(user);
-            getConnection();
+            GetConnection();
             return UserModel.Load(conn, GetCurrentUserId(user));
         }
     }

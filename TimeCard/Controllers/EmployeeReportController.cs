@@ -16,8 +16,7 @@ namespace TimeCard.Controllers
             int userId = HoursControllerUtil.GetCurrentUserId(User);
             if (userId == 0) return Redirect("/");
 
-            SQLiteConnection conn = new SQLiteConnection(@"Data Source=D:\code\TimeCard\TimeCard\TimeCard\App_Data\time.db;Version=3;");
-            conn.Open();
+            SQLiteConnection conn = HoursControllerUtil.GetConnection();
             WorkdayModel day = WorkdayModel.Load(conn, userId, new DateTime( 2014,11,3 ));
             conn.Close();
 
