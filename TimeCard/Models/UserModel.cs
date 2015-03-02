@@ -25,6 +25,7 @@ namespace TimeCard.Models
         public const int DONE = 4;
         public const int PAID_TIME_OFF = 5;
         public const int HOLIDAY = 6;
+        public const int WEEKEND = 7;
 
         public static string[] STATE_DESCRIPTION = {"not working"
                                                   , "punched in, before lunch"
@@ -33,6 +34,7 @@ namespace TimeCard.Models
                                                   , "finished working"
                                                   , "taking the day off"
                                                   , "on holiday"
+                                                  , "enjoying the weekend"
                                                   };
 
         public static UserModel Load(SQLiteConnection conn, int userId)
@@ -82,6 +84,7 @@ namespace TimeCard.Models
             WorkdayModel day = WorkdayModel.Load(HoursUtil.GetConnection(), Id, when);
             if (day == null)
             {
+                if (when.DayOfWeek == DayOfWeek.Sunday || when.DayOfWeek == DayOfWeek.Saturday) return WEEKEND;
                 return NOT_WORKING;
             }
             else

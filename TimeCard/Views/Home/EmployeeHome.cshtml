@@ -5,13 +5,18 @@
 <h3>You're @ViewBag.Activity. </h3>
 
 <div class="row">
-    <form action="/" method="post">
-        <ul class="list-inline">
-            <li><input class="btn btn-primary btn-lg" type="submit" name="punch" value="Start Work" @ViewBag.ButtonEnables["StartIn"] /></li>
-            <li><input class="btn btn-primary btn-lg" type="submit" name="punch" value="Go to lunch" @ViewBag.ButtonEnables["LunchOut"] /></li>
-            <li><input class="btn btn-primary btn-lg" type="submit" name="punch" value="Return from lunch" @ViewBag.ButtonEnables["LunchIn"] /></li>
-            <li><input class="btn btn-primary btn-lg" type="submit" name="punch" value="End Work" @ViewBag.ButtonEnables["EndOut"] /></li>
-        </ul>
+    <form action="/" method="post" class="form-inline">
+        <input type="hidden" name="forceDate" value="@ViewBag.PageTime.Date.ToShortDateString()" />
+        <input type="hidden" name="forceTime" value="@ViewBag.PageTime.AddMinutes(1).ToShortTimeString()" />
+
+        <div class="form-group">
+            <ul class="list-inline">
+                <li><input class="btn btn-primary btn-lg" type="submit" name="punch" value="Start Work" @ViewBag.ButtonEnables["StartIn"] /></li>
+                <li><input class="btn btn-primary btn-lg" type="submit" name="punch" value="Go to lunch" @ViewBag.ButtonEnables["LunchOut"] /></li>
+                <li><input class="btn btn-primary btn-lg" type="submit" name="punch" value="Return from lunch" @ViewBag.ButtonEnables["LunchIn"] /></li>
+                <li><input class="btn btn-primary btn-lg" type="submit" name="punch" value="End Work" @ViewBag.ButtonEnables["EndOut"] /></li>
+            </ul>
+        </div>
     </form>
 </div>
 <div class="row">
