@@ -117,7 +117,7 @@ namespace TimeCard.Models
             if (day == null)
             {
                 day = new WorkdayModel();
-                day.Date = when.Date;
+                day.Day = when.Date;
                 day.User = this;
                 if (activity != PUNCH_START_IN)
                 {

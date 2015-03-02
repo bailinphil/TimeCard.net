@@ -10,7 +10,7 @@ namespace TimeCard.Models
     public class WorkdayModel
     {
         public UserModel User { get; set; }
-        public DateTime Date { get; set; }
+        public DateTime Day { get; set; }
         public DateTime StartIn { get; set; }
         public DateTime LunchOut { get; set; }
         public DateTime LunchIn { get; set; }
@@ -19,11 +19,31 @@ namespace TimeCard.Models
         public bool IsHoliday { get; set; }
 
         private const string LOAD_QUERY = @"select * from workday join user on workday.userid = user.id where userId = @id and day = @day";
+        private const string DELETE_QUERY = @"delete from workday where userId=@id and day=@day";
+        private const string INSERT_QUERY = @"insert into Workday( userId
+                                                                 , day
+                                                                 , startIn
+                                                                 , lunchOut
+                                                                 , lunchIn
+                                                                 , endOut
+                                                                 , isPaidTimeOff
+                                                                 , isHoliday 
+                                                                 )
+                                                                 values 
+                                                                 ( 2
+                                                                 , '2014-10-01'
+                                                                 , '2014-10-01T07:58:00'
+                                                                 , '2014-10-01T12:02:00'
+                                                                 , '2014-10-01T12:58:00'
+                                                                 , '2014-10-01T17:00:00'
+                                                                 , 0
+                                                                 , (select count(1) from Holiday where day='2014-10-01') 
+                                                                 )";
 
         public WorkdayModel()
         {
             User = null;
-            Date = DateTime.MaxValue;
+            Day = DateTime.MaxValue;
             StartIn = DateTime.MaxValue;
             LunchOut = DateTime.MaxValue;
             LunchIn = DateTime.MaxValue;
@@ -82,7 +102,7 @@ namespace TimeCard.Models
             WorkdayModel result = new WorkdayModel();
             UserModel user = UserModel.LoadFromReader(reader);
             result.User = user;
-            result.Date = reader["day"] == DBNull.Value ? DateTime.MaxValue : ((DateTime)reader["day"]).Date;
+            result.Day = reader["day"] == DBNull.Value ? DateTime.MaxValue : ((DateTime)reader["day"]).Date;
             result.StartIn = reader["startIn"] == DBNull.Value ? DateTime.MaxValue : (DateTime)reader["startIn"];
             result.LunchOut = reader["lunchOut"] == DBNull.Value ? DateTime.MaxValue : (DateTime)reader["lunchOut"];
             result.LunchIn = reader["lunchIn"] == DBNull.Value ? DateTime.MaxValue : (DateTime)reader["lunchIn"];
@@ -95,11 +115,12 @@ namespace TimeCard.Models
         public void Save(SQLiteConnection conn)
         {
             CheckConsistency();
+            
         }
 
         public bool HasDate()
         {
-            return Date != null && Date != DateTime.MinValue && Date != DateTime.MaxValue;
+            return Day != null && Day != DateTime.MinValue && Day != DateTime.MaxValue;
         }
 
         public bool HasStartIn()
@@ -140,7 +161,7 @@ namespace TimeCard.Models
                 message = string.Format("User {0} ({1}) cannot end work on {2} if it has not begun."
                                        , User.Id
                                        , User.Name
-                                       , Date.ToShortDateString());
+                                       , Day.ToShortDateString());
                 throw new WorkdayStateException(message);
             }
             if (HasLunchOut() && !HasStartIn())
@@ -148,7 +169,7 @@ namespace TimeCard.Models
                 message = string.Format("User {0} ({1}) cannot go to lunch on {2} if work has not begun."
                                        , User.Id
                                        , User.Name
-                                       , Date.ToShortDateString());
+                                       , Day.ToShortDateString());
                 throw new WorkdayStateException(message);
             }
             if (HasLunchIn() && (!HasStartIn() || !HasLunchOut()))
@@ -156,7 +177,7 @@ namespace TimeCard.Models
                 message = string.Format("User {0} ({1}) cannot return from lunch on {2} if work start and lunch start are not both present."
                                        , User.Id
                                        , User.Name
-                                       , Date.ToShortDateString());
+                                       , Day.ToShortDateString());
                 throw new WorkdayStateException(message);
             }
 
@@ -168,7 +189,7 @@ namespace TimeCard.Models
                     message = string.Format("User {0} ({1}) cannot go to lunch on {2} before work has begun."
                                                            , User.Id
                                                            , User.Name
-                                                           , Date.ToShortDateString());
+                                                           , Day.ToShortDateString());
                     throw new WorkdayStateException(message);
                 }
                 if (HasLunchIn() && LunchIn < StartIn)
@@ -176,7 +197,7 @@ namespace TimeCard.Models
                     message = string.Format("User {0} ({1}) cannot return from lunch on {2} before work has begun."
                                                            , User.Id
                                                            , User.Name
-                                                           , Date.ToShortDateString());
+                                                           , Day.ToShortDateString());
                     throw new WorkdayStateException(message);
                 }
                 if (HasEndOut() && EndOut < StartIn)
@@ -184,7 +205,7 @@ namespace TimeCard.Models
                     message = string.Format("User {0} ({1}) cannot finish work on {2} before work has begun."
                                                            , User.Id
                                                            , User.Name
-                                                           , Date.ToShortDateString());
+                                                           , Day.ToShortDateString());
                     throw new WorkdayStateException(message);
                 }
             }
@@ -195,7 +216,7 @@ namespace TimeCard.Models
                     message = string.Format("User {0} ({1}) cannot return from lunch on {2} before leaving for it."
                                                            , User.Id
                                                            , User.Name
-                                                           , Date.ToShortDateString());
+                                                           , Day.ToShortDateString());
                     throw new WorkdayStateException(message);
                 }
                 if (HasEndOut() && EndOut < LunchOut)
@@ -203,7 +224,7 @@ namespace TimeCard.Models
                     message = string.Format("User {0} ({1}) cannot finish work on {2} before leaving for lunch."
                                                            , User.Id
                                                            , User.Name
-                                                           , Date.ToShortDateString());
+                                                           , Day.ToShortDateString());
                     throw new WorkdayStateException(message);
                 }
             }
@@ -214,7 +235,7 @@ namespace TimeCard.Models
                     message = string.Format("User {0} ({1}) cannot finish work on {2} before returning from lunch."
                                                            , User.Id
                                                            , User.Name
-                                                           , Date.ToShortDateString());
+                                                           , Day.ToShortDateString());
                     throw new WorkdayStateException(message);
                 }
             }
