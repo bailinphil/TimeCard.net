@@ -20,6 +20,18 @@ namespace TimeCard.Models
 
         private const string LOAD_QUERY = @"select * from workday join user on workday.userid = user.id where userId = @id and day = @day";
 
+        public WorkdayModel()
+        {
+            User = null;
+            Date = DateTime.MaxValue;
+            StartIn = DateTime.MaxValue;
+            LunchOut = DateTime.MaxValue;
+            LunchIn = DateTime.MaxValue;
+            EndOut = DateTime.MaxValue;
+            IsPaidTimeOff = false;
+            IsHoliday = false;
+        }
+
         public static WorkdayModel Load(SQLiteConnection conn, long userId, DateTime date)
         {
             SQLiteCommand query = null;
@@ -80,5 +92,139 @@ namespace TimeCard.Models
             return result;
         }
 
+        public void Save(SQLiteConnection conn)
+        {
+            CheckConsistency();
+        }
+
+        public bool HasDate()
+        {
+            return Date != null && Date != DateTime.MinValue && Date != DateTime.MaxValue;
+        }
+
+        public bool HasStartIn()
+        {
+            return StartIn != null && StartIn != DateTime.MinValue && StartIn != DateTime.MaxValue;
+        }
+
+        public bool HasLunchOut()
+        {
+            return LunchOut != null && StartIn != DateTime.MinValue && LunchOut != DateTime.MaxValue;
+        }
+
+        public bool HasLunchIn()
+        {
+            return LunchIn != null && StartIn != DateTime.MinValue && LunchIn != DateTime.MaxValue;
+        }
+
+        public bool HasEndOut()
+        {
+            return EndOut != null && StartIn != DateTime.MinValue && EndOut != DateTime.MaxValue;
+        }
+
+        /* 
+         * the point of this is to ensure that we maintain a consistent state for all workdays, before we 
+         * save anything.
+         */
+        public void CheckConsistency()
+        {
+            string message = null;
+            // check for presence/absence of necessary fields.
+            if (User == null)
+            {
+                message = "Workday not associated with any user.";
+                throw new WorkdayStateException(message);
+            }
+            if (HasEndOut() && !HasStartIn())
+            {
+                message = string.Format("User {0} ({1}) cannot end work on {2} if it has not begun."
+                                       , User.Id
+                                       , User.Name
+                                       , Date.ToShortDateString());
+                throw new WorkdayStateException(message);
+            }
+            if (HasLunchOut() && !HasStartIn())
+            {
+                message = string.Format("User {0} ({1}) cannot go to lunch on {2} if work has not begun."
+                                       , User.Id
+                                       , User.Name
+                                       , Date.ToShortDateString());
+                throw new WorkdayStateException(message);
+            }
+            if (HasLunchIn() && (!HasStartIn() || !HasLunchOut()))
+            {
+                message = string.Format("User {0} ({1}) cannot return from lunch on {2} if work start and lunch start are not both present."
+                                       , User.Id
+                                       , User.Name
+                                       , Date.ToShortDateString());
+                throw new WorkdayStateException(message);
+            }
+
+            // check ordering of timestamps
+            if (HasStartIn())
+            {
+                if (HasLunchOut() && LunchOut < StartIn)
+                {
+                    message = string.Format("User {0} ({1}) cannot go to lunch on {2} before work has begun."
+                                                           , User.Id
+                                                           , User.Name
+                                                           , Date.ToShortDateString());
+                    throw new WorkdayStateException(message);
+                }
+                if (HasLunchIn() && LunchIn < StartIn)
+                {
+                    message = string.Format("User {0} ({1}) cannot return from lunch on {2} before work has begun."
+                                                           , User.Id
+                                                           , User.Name
+                                                           , Date.ToShortDateString());
+                    throw new WorkdayStateException(message);
+                }
+                if (HasEndOut() && EndOut < StartIn)
+                {
+                    message = string.Format("User {0} ({1}) cannot finish work on {2} before work has begun."
+                                                           , User.Id
+                                                           , User.Name
+                                                           , Date.ToShortDateString());
+                    throw new WorkdayStateException(message);
+                }
+            }
+            if (HasLunchOut())
+            {
+                if (HasLunchIn() && LunchIn < LunchOut)
+                {
+                    message = string.Format("User {0} ({1}) cannot return from lunch on {2} before leaving for it."
+                                                           , User.Id
+                                                           , User.Name
+                                                           , Date.ToShortDateString());
+                    throw new WorkdayStateException(message);
+                }
+                if (HasEndOut() && EndOut < LunchOut)
+                {
+                    message = string.Format("User {0} ({1}) cannot finish work on {2} before leaving for lunch."
+                                                           , User.Id
+                                                           , User.Name
+                                                           , Date.ToShortDateString());
+                    throw new WorkdayStateException(message);
+                }
+            }
+            if (HasLunchIn())
+            {
+                if (HasEndOut() && EndOut < LunchIn)
+                {
+                    message = string.Format("User {0} ({1}) cannot finish work on {2} before returning from lunch."
+                                                           , User.Id
+                                                           , User.Name
+                                                           , Date.ToShortDateString());
+                    throw new WorkdayStateException(message);
+                }
+            }
+        }
+    }
+}
+
+public class WorkdayStateException : Exception
+{
+    public WorkdayStateException(string message) : base( message )
+    {
     }
 }

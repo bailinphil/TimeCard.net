@@ -40,12 +40,18 @@ namespace TimeCard.Controllers
         private ActionResult EmployeeHome(UserModel user)
         {
             var pageTime = getPageTime();
+            if (Request.Form.HasKeys() && Request.Form["punch"] != null)
+            {
+                var conn = HoursUtil.GetConnection();
+                user.Punch( conn, pageTime, Request.Form["punch"] );
+            }
+
             var activityCode = user.GetActivity( pageTime );
             Dictionary<string,string> buttonEnables = new Dictionary<string, string>();
             buttonEnables["StartIn"] = activityCode < 1 ? "" : "disabled";
-            buttonEnables["LunchOut"] = activityCode < 2 ? "" : "disabled";
-            buttonEnables["LunchIn"] = activityCode < 3 ? "" : "disabled";
-            buttonEnables["EndOut"] = activityCode < 4 ? "" : "disabled";
+            buttonEnables["LunchOut"] = activityCode == 1 ? "" : "disabled";
+            buttonEnables["LunchIn"] = activityCode == 2 ? "" : "disabled";
+            buttonEnables["EndOut"] = activityCode > 0 && activityCode < 4 ? "" : "disabled";
 
             ViewBag.PageTime = pageTime;
             ViewBag.Activity = UserModel.STATE_DESCRIPTION[activityCode];
@@ -71,8 +77,8 @@ namespace TimeCard.Controllers
                 string[] timeParts = Request.Form["forceTime"].Split(timeDelims);
                 int hours = Convert.ToInt32(timeParts[0]);
                 int minutes = Convert.ToInt32(timeParts[1]);
-                if (timeParts[2] == "PM" && hours < 12) hours += 12;
-                int seconds = 0;
+                int seconds = Convert.ToInt32(timeParts[2]) ;
+                if (timeParts[3] == "PM" && hours < 12) hours += 12;
 
                 pageTime = new DateTime(year, month, day, hours, minutes, seconds);
             }

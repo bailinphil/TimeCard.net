@@ -27,6 +27,11 @@ namespace TimeCard.Models
         public const int HOLIDAY = 6;
         public const int WEEKEND = 7;
 
+        public const string PUNCH_START_IN = "Start work";
+        public const string PUNCH_LUNCH_OUT = "Go to lunch";
+        public const string PUNCH_LUNCH_IN = "Return from lunch";
+        public const string PUNCH_END_OUT = "End work";
+
         public static string[] STATE_DESCRIPTION = {"not working"
                                                   , "punched in, before lunch"
                                                   , "at lunch"
@@ -65,12 +70,12 @@ namespace TimeCard.Models
         public static UserModel LoadFromReader(SQLiteDataReader reader)
         {
             UserModel result = new UserModel();
-            result.Id = (long) reader["id"];
-            result.Username = (string) reader["username"];
-            result.Password = (string) reader["password"];
-            result.Name = (string) reader["name"];
-            result.IsAdmin = ((byte) reader["isAdmin"]) > 0;
-            result.DepartmentId = reader["departmentId"] == DBNull.Value ? 0 : (long) reader["departmentId"];
+            result.Id = (long)reader["id"];
+            result.Username = (string)reader["username"];
+            result.Password = (string)reader["password"];
+            result.Name = (string)reader["name"];
+            result.IsAdmin = ((byte)reader["isAdmin"]) > 0;
+            result.DepartmentId = reader["departmentId"] == DBNull.Value ? 0 : (long)reader["departmentId"];
             return result;
         }
 
@@ -95,13 +100,50 @@ namespace TimeCard.Models
                 // the load function uses DateTime.MaxValue if the entry hasn't been created yet.
                 // that is, in the database, if there's a value for StartIn, but the others are all
                 // null, they will be represented as DateTime.MaxValue.
-                if (when < day.StartIn ) return NOT_WORKING;
-                if (when > day.EndOut) return DONE; // if there's a punch out time, we don't need to check on lunch.
-                if (when < day.LunchOut ) return MORNING;
-                if (when < day.LunchIn ) return LUNCH;
-                if (when < day.EndOut ) return AFTERNOON;
+                if (when < day.StartIn) return NOT_WORKING;
+                // if there's a punch out time, it doesn't matter whether lunch occurred.
+                if (when >= day.EndOut) return DONE;
+
+                if (when == day.StartIn || when < day.LunchOut) return MORNING;
+                if (when == day.LunchOut || when < day.LunchIn) return LUNCH;
+                if (when == day.LunchIn || when < day.EndOut) return AFTERNOON;
                 return NOT_WORKING;
             }
         }
+
+        public void Punch(SQLiteConnection conn, DateTime when, String activity)
+        {
+            WorkdayModel day = WorkdayModel.Load(HoursUtil.GetConnection(), Id, when);
+            if (day == null)
+            {
+                day = new WorkdayModel();
+                day.Date = when.Date;
+                day.User = this;
+                if (activity != PUNCH_START_IN)
+                {
+                    string message = string.Format("Record for new day {0} should begin with starting work, not '{1}'", when.ToShortDateString(), activity);
+                    throw new ArgumentException(message);
+                }
+            }
+            switch (activity)
+            {
+                case PUNCH_START_IN:
+                    day.StartIn = when;
+                    break;
+                case PUNCH_LUNCH_OUT:
+                    day.LunchOut = when;
+                    break;
+                case PUNCH_LUNCH_IN:
+                    day.LunchIn = when;
+                    break;
+                case PUNCH_END_OUT:
+                    day.EndOut = when;
+                    break;
+                default:
+                    throw new ArgumentException("don't recognize punch activity: " + activity);
+            }
+            day.Save(conn);
+        }
+
     }
 }

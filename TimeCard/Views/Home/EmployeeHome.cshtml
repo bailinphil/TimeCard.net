@@ -5,16 +5,16 @@
 <h3>You're @ViewBag.Activity. </h3>
 
 <div class="row">
-    <form action="/" method="post" class="form-inline">
+    <form method="post" class="form-inline">
         <input type="hidden" name="forceDate" value="@ViewBag.PageTime.Date.ToShortDateString()" />
-        <input type="hidden" name="forceTime" value="@ViewBag.PageTime.AddMinutes(1).ToShortTimeString()" />
+        <input type="hidden" name="forceTime" value="@ViewBag.PageTime.ToLongTimeString()" />
 
         <div class="form-group">
             <ul class="list-inline">
-                <li><input class="btn btn-primary btn-lg" type="submit" name="punch" value="Start Work" @ViewBag.ButtonEnables["StartIn"] /></li>
+                <li><input class="btn btn-primary btn-lg" type="submit" name="punch" value="Start work" @ViewBag.ButtonEnables["StartIn"] /></li>
                 <li><input class="btn btn-primary btn-lg" type="submit" name="punch" value="Go to lunch" @ViewBag.ButtonEnables["LunchOut"] /></li>
                 <li><input class="btn btn-primary btn-lg" type="submit" name="punch" value="Return from lunch" @ViewBag.ButtonEnables["LunchIn"] /></li>
-                <li><input class="btn btn-primary btn-lg" type="submit" name="punch" value="End Work" @ViewBag.ButtonEnables["EndOut"] /></li>
+                <li><input class="btn btn-primary btn-lg" type="submit" name="punch" value="End work" @ViewBag.ButtonEnables["EndOut"] /></li>
             </ul>
         </div>
     </form>
@@ -28,14 +28,20 @@
     <p class="">
         Because this is a demo project, you may time travel on this page.
         <br />
-        <form action="/" method="post" class="form-inline">
+        <form method="post" class="form-inline">
             <div class="form-group">
                 <label for="forceDate">Date:</label>
 
                 <select id="forceDate" name="forceDate">
                     @for (double i = -125; i < 30; ++i)
                     {
-                        <option> @(DateTime.Now.AddDays(i).Date.ToShortDateString()) </option>
+                        var day = DateTime.Now.AddDays(i).Date;
+                        var optionString = "<option ";
+                        if (day == ViewBag.PageTime.Date) { optionString += "selected"; }
+                        optionString += ">";
+                        optionString += day.ToShortDateString();
+                        optionString += "</option>";
+                        WriteLiteral(optionString);
                     }
                 </select>
             </div>
@@ -44,7 +50,7 @@
                 <select id="forceTime" name="forceTime">
                     @for (int i = 14; i < 62; ++i) // 30-min increments for whole day, starting at 7:00 AM
                     {
-                        <option> @(DateTime.Now.Date.AddHours(i / 2).AddMinutes(30 * (i % 2)).ToShortTimeString()) </option>
+                        <option> @(DateTime.Now.Date.AddHours(i / 2).AddMinutes(30 * (i % 2)).ToLongTimeString()) </option>
                     }
                 </select>
             </div>
