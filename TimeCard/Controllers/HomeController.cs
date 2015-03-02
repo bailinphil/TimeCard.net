@@ -39,13 +39,32 @@ namespace TimeCard.Controllers
 
         private ActionResult EmployeeHome(UserModel user)
         {
-            var activityCode = user.GetActivity( new DateTime( 2014,11,3,12,30,00) );
+            var pageTime = DateTime.Now;
+            if (Request.Form.HasKeys() && Request.Form["forceDate"] != null && Request.Form["forceTime"] != null)
+            {
+                char[] dateDelims = {'/'};
+                string[] dateParts = Request.Form["forceDate"].Split( dateDelims );
+                int month = Convert.ToInt32(dateParts[0]);
+                int day = Convert.ToInt32(dateParts[1]);
+                int year = Convert.ToInt32(dateParts[2]);
+
+                char[] timeDelims = {':', ' '};
+                string[] timeParts = Request.Form["forceTime"].Split(timeDelims);
+                int hours = Convert.ToInt32(timeParts[0]);
+                int minutes = Convert.ToInt32(timeParts[1]);
+                if (timeParts[2] == "PM" && hours < 12) hours += 12;
+                int seconds = 0;
+
+                pageTime = new DateTime(year, month, day, hours, minutes, seconds);
+            }
+            var activityCode = user.GetActivity( pageTime );
             Dictionary<string,string> buttonEnables = new Dictionary<string, string>();
             buttonEnables["StartIn"] = activityCode < 1 ? "" : "disabled";
             buttonEnables["LunchOut"] = activityCode < 2 ? "" : "disabled";
             buttonEnables["LunchIn"] = activityCode < 3 ? "" : "disabled";
             buttonEnables["EndOut"] = activityCode < 4 ? "" : "disabled";
 
+            ViewBag.PageTime = pageTime;
             ViewBag.Activity = UserModel.STATE_DESCRIPTION[activityCode];
             ViewBag.ButtonEnables = buttonEnables;
             return View("EmployeeHome");
