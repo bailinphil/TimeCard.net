@@ -47,8 +47,8 @@ insert into user
   (username, password, name, isadmin, departmentid) 
 values 
     ("admin", "abc123", "phil", 1, null )
-  , ("honestabe", "password1", "abe", 0, 2 )
-  , ("lazybob", "password2", "bob", 0, 2 );
+  , ("honestabe", "password1", "Abe", 0, 2 )
+  , ("lazybob", "password2", "Bob", 0, 2 );
 
 insert into holiday (day, name)
 values 
