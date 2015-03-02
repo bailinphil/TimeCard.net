@@ -18,10 +18,22 @@ namespace TimeCard.Models
 
         private const string LOAD_QUERY = @"select * from user where id = @id";
 
-        public const string NOT_WORKING = "not working";
-        public const string MORNING = "punched in, before lunch";
-        public const string LUNCH = "at lunch";
-        public const string AFTERNOON = "punched in, after lunch";
+        public const int NOT_WORKING = 0;
+        public const int MORNING = 1;
+        public const int LUNCH = 2;
+        public const int AFTERNOON = 3;
+        public const int DONE = 4;
+        public const int PAID_TIME_OFF = 5;
+        public const int HOLIDAY = 6;
+
+        public static string[] STATE_DESCRIPTION = {"not working"
+                                                  , "punched in, before lunch"
+                                                  , "at lunch"
+                                                  , "punched in, after lunch"
+                                                  , "finished working"
+                                                  , "taking the day off"
+                                                  , "on holiday"
+                                                  };
 
         public static UserModel Load(SQLiteConnection conn, int userId)
         {
@@ -60,12 +72,12 @@ namespace TimeCard.Models
             return result;
         }
 
-        public String GetActivity()
+        public int GetActivity()
         {
             return GetActivity(DateTime.Now);
         }
 
-        public String GetActivity(DateTime when)
+        public int GetActivity(DateTime when)
         {
             WorkdayModel day = WorkdayModel.Load(HoursUtil.GetConnection(), Id, when);
             if (day == null)
@@ -74,8 +86,14 @@ namespace TimeCard.Models
             }
             else
             {
+                if (day.IsHoliday) return HOLIDAY;
+                if (day.IsPaidTimeOff) return PAID_TIME_OFF;
+
                 // the load function uses DateTime.MaxValue if the entry hasn't been created yet.
+                // that is, in the database, if there's a value for StartIn, but the others are all
+                // null, they will be represented as DateTime.MaxValue.
                 if (when < day.StartIn ) return NOT_WORKING;
+                if (when > day.EndOut) return DONE; // if there's a punch out time, we don't need to check on lunch.
                 if (when < day.LunchOut ) return MORNING;
                 if (when < day.LunchIn ) return LUNCH;
                 if (when < day.EndOut ) return AFTERNOON;

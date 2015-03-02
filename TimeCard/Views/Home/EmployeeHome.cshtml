@@ -2,5 +2,16 @@
     ViewBag.Title = "Home";  
 }
 <h2>Welcome Back, @ViewBag.User.Name</h2>
-<h3>Currently, you're @ViewBag.User.GetActivity( new DateTime(2014,11,3,20,30,0))</h3>
+<h3>Currently, you're @ViewBag.Activity </h3>
+
+<div class="row">
+    <form action="/" method="post">
+        <ul class="list-inline">
+            <li><input class="btn btn-primary btn-lg" type="submit" name="punch" value="Start Work" @ViewBag.ButtonEnables["StartIn"] /></li>
+            <li><input class="btn btn-primary btn-lg" type="submit" name="punch" value="Go to lunch" @ViewBag.ButtonEnables["LunchOut"] /></li>
+            <li><input class="btn btn-primary btn-lg" type="submit" name="punch" value="Return from lunch" @ViewBag.ButtonEnables["LunchIn"] /></li>
+            <li><input class="btn btn-primary btn-lg" type="submit" name="punch" value="End Work" @ViewBag.ButtonEnables["EndOut"] /></li>
+        </ul>
+    </form>
+</div>
 
