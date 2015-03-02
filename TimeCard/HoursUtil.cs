@@ -5,7 +5,7 @@ using System.Data.SQLite;
 using System.Security.Principal;
 using TimeCard.Models;
 
-namespace TimeCard.Controllers
+namespace TimeCard
 {
     public class HoursUtil
     {
