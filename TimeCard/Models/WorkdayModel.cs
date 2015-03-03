@@ -296,10 +296,10 @@ namespace TimeCard.Models
         private void SetInsertValues(SQLiteCommand insert)
         {
             var text = insert.CommandText;
-            text = text.Replace("@startIn", HasStartIn() ? StartIn.ToString("yyyy-MM-ddTH:mm:ss") : "NULL");
-            text = text.Replace("@lunchOut", HasLunchOut() ? LunchOut.ToString("yyyy-MM-ddTH:mm:ss") : "NULL");
-            text = text.Replace("@lunchIn", HasLunchIn() ? LunchIn.ToString("yyyy-MM-ddTH:mm:ss") : "NULL");
-            text = text.Replace("@endOut", HasEndOut() ? EndOut.ToString("yyyy-MM-ddTH:mm:ss") : "NULL");
+            text = text.Replace("@startIn", HasStartIn() ? StartIn.ToString("yyyy-MM-ddTHH:mm:ss") : "NULL");
+            text = text.Replace("@lunchOut", HasLunchOut() ? LunchOut.ToString("yyyy-MM-ddTHH:mm:ss") : "NULL");
+            text = text.Replace("@lunchIn", HasLunchIn() ? LunchIn.ToString("yyyy-MM-ddTHH:mm:ss") : "NULL");
+            text = text.Replace("@endOut", HasEndOut() ? EndOut.ToString("yyyy-MM-ddTHH:mm:ss") : "NULL");
             text = text.Replace("@isPaidTimeOff", IsPaidTimeOff ? "1" : "0");
             text = text.Replace("@isHoliday", IsHoliday ? "1" : "0");
             text = text.Replace("'NULL'", "NULL"); // drop single quotes around NULL values
