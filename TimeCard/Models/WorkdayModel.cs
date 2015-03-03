@@ -18,9 +18,9 @@ namespace TimeCard.Models
         public bool IsPaidTimeOff { get; set; }
         public bool IsHoliday { get; set; }
 
-        private const string LOAD_QUERY = @"select * from workday join user on workday.userid = user.id where userId = @id and day = @day";
-        private const string DELETE_QUERY = @"delete from workday where userId=@id and day=@day";
-        private const string INSERT_QUERY = @"insert into Workday( userId
+        private const string LOAD_QUERY = @"select * from workday join user on workday.userid = user.id where userId='@id' and day='@day'";
+        private const string DELETE_QUERY = @"delete from workday where userId='@id' and day='@day'";
+        private const string INSERT_QUERY = @"insert into workday( userId
                                                                  , day
                                                                  , startIn
                                                                  , lunchOut
@@ -30,14 +30,14 @@ namespace TimeCard.Models
                                                                  , isHoliday 
                                                                  )
                                                                  values 
-                                                                 ( 2
-                                                                 , '2014-10-01'
-                                                                 , '2014-10-01T07:58:00'
-                                                                 , '2014-10-01T12:02:00'
-                                                                 , '2014-10-01T12:58:00'
-                                                                 , '2014-10-01T17:00:00'
-                                                                 , 0
-                                                                 , (select count(1) from Holiday where day='2014-10-01') 
+                                                                 ( '@id'
+                                                                 , '@day'
+                                                                 , '@startIn'
+                                                                 , '@lunchOut'
+                                                                 , '@lunchIn'
+                                                                 , '@endOut'
+                                                                 , '@isPaidTimeOff'
+                                                                 , '@isHoliday'
                                                                  )";
 
         public WorkdayModel()
@@ -58,36 +58,18 @@ namespace TimeCard.Models
             SQLiteDataReader reader = null;
             try
             {
-                bool prepareStatement = false;
-
-                if (prepareStatement)
-                {
-                    // this method isn't returning results for some reason; workaround below just 
-                    // concatenates a string instead.
-                    query = new SQLiteCommand(LOAD_QUERY, conn);
-                    SQLiteParameter idParam = new SQLiteParameter("@id", SqlDbType.Int);
-                    SQLiteParameter dateParam = new SQLiteParameter("@day", SqlDbType.Date);
-                    idParam.Value = userId;
-                    dateParam.Value = date.Date;
-                    query.Parameters.Add(idParam);
-                    query.Parameters.Add(dateParam);
-                    query.Prepare();
-                    reader = query.ExecuteReader();
-                }
-                else
-                {
-                    string queryString = LOAD_QUERY.Replace("@id", userId.ToString()).Replace("@day", String.Format("'{0:yyyy-MM-dd}'", date));
-                    query = new SQLiteCommand(queryString, conn);
-                    reader = query.ExecuteReader();
-                }
-
+                query = new SQLiteCommand(LOAD_QUERY, conn);
+                SetIdentityQueryValues(userId, date, query);
+                //PrepareIdentityQuery(userId,date,query);
+                //query.Prepare();
+                reader = query.ExecuteReader();
 
                 if (reader.Read())
                 {
                     return LoadFromReader(reader);
                 }
                 else
-                {
+               { 
                     return null;
                 }
             }
@@ -115,7 +97,16 @@ namespace TimeCard.Models
         public void Save(SQLiteConnection conn)
         {
             CheckConsistency();
-            
+            var delete = new SQLiteCommand(DELETE_QUERY, conn);
+            SetIdentityQueryValues(User.Id, Day, delete);
+            //delete.Prepare();
+            var rows = delete.ExecuteNonQuery();
+
+            var insert = new SQLiteCommand(INSERT_QUERY, conn);
+            SetIdentityQueryValues(User.Id, Day, insert);
+            SetInsertValues(insert);
+            //insert.Prepare();
+            insert.ExecuteNonQuery();
         }
 
         public bool HasDate()
@@ -240,12 +231,74 @@ namespace TimeCard.Models
                 }
             }
         }
+
+        private static void PrepareIdentityQuery(long userId, DateTime date, SQLiteCommand query)
+        {
+            SQLiteParameter idParam = new SQLiteParameter("@id", SqlDbType.Int);
+            SQLiteParameter dayParam = new SQLiteParameter("@day", SqlDbType.Date);
+            idParam.Value = userId;
+            dayParam.Value = date.Date;
+            query.Parameters.Add(idParam);
+            query.Parameters.Add(dayParam);
+        }
+
+        /*
+         * using text replacment in query generation is a big no-no because of SQL injection attacks, but
+         * I am unable to resolve some bugs with prepared statements, so falling back to this.
+         */
+        private static void SetIdentityQueryValues(long userId, DateTime when, SQLiteCommand query)
+        {
+            var text = query.CommandText;
+            text = text.Replace("@id", userId.ToString());
+            text = text.Replace("@day", when.ToString("yyyy-MM-dd"));
+            query.CommandText = text;
+        }
+
+        private void PrepareInsert(SQLiteCommand insert)
+        {
+            SQLiteParameter startInParam = new SQLiteParameter("@startIn", SqlDbType.DateTime);
+            SQLiteParameter lunchOutParam = new SQLiteParameter("@lunchOut", SqlDbType.DateTime);
+            SQLiteParameter lunchInParam = new SQLiteParameter("@lunchIn", SqlDbType.DateTime);
+            SQLiteParameter endOutParam = new SQLiteParameter("@endOut", SqlDbType.DateTime);
+            SQLiteParameter isPaidTimeOffParam = new SQLiteParameter("@isPaidTimeOff", SqlDbType.TinyInt);
+            SQLiteParameter isHolidayParam = new SQLiteParameter("@isHoliday", SqlDbType.TinyInt);
+            startInParam.Value = DBNull.Value;
+            lunchOutParam.Value = DBNull.Value;
+            lunchInParam.Value = DBNull.Value;
+            endOutParam.Value = DBNull.Value;
+            if (HasStartIn()) startInParam.Value = StartIn;
+            if (HasLunchOut()) lunchOutParam.Value = LunchOut;
+            if (HasLunchIn()) lunchInParam.Value = LunchIn;
+            if (HasEndOut()) endOutParam.Value = EndOut;
+            isPaidTimeOffParam.Value = IsPaidTimeOff ? 1 : 0;
+            isHolidayParam.Value = IsHoliday ? 1 : 0;
+            insert.Parameters.Add(startInParam);
+            insert.Parameters.Add(lunchOutParam);
+            insert.Parameters.Add(lunchInParam);
+            insert.Parameters.Add(endOutParam);
+            insert.Parameters.Add(isPaidTimeOffParam);
+            insert.Parameters.Add(isHolidayParam);
+        }
+
+        private void SetInsertValues(SQLiteCommand insert)
+        {
+            var text = insert.CommandText;
+            text = text.Replace("@startIn", HasStartIn() ? StartIn.ToString("yyyy-MM-ddTH:mm:ss") : "NULL");
+            text = text.Replace("@lunchOut", HasLunchOut() ? LunchOut.ToString("yyyy-MM-ddTH:mm:ss") : "NULL");
+            text = text.Replace("@lunchIn", HasLunchIn() ? LunchIn.ToString("yyyy-MM-ddTH:mm:ss") : "NULL");
+            text = text.Replace("@endOut", HasEndOut() ? EndOut.ToString("yyyy-MM-ddTH:mm:ss") : "NULL");
+            text = text.Replace("@isPaidTimeOff", IsPaidTimeOff ? "1" : "0");
+            text = text.Replace("@isHoliday", IsHoliday ? "1" : "0");
+            text = text.Replace("'NULL'", "NULL"); // drop single quotes around NULL values
+            insert.CommandText = text;
+        }
     }
 }
 
 public class WorkdayStateException : Exception
 {
-    public WorkdayStateException(string message) : base( message )
+    public WorkdayStateException(string message)
+        : base(message)
     {
     }
 }
