@@ -69,7 +69,7 @@ namespace TimeCard.Models
                     return LoadFromReader(reader);
                 }
                 else
-               { 
+                {
                     return null;
                 }
             }
@@ -91,6 +91,19 @@ namespace TimeCard.Models
             result.EndOut = reader["endOut"] == DBNull.Value ? DateTime.MaxValue : (DateTime)reader["endOut"];
             result.IsPaidTimeOff = ((byte)reader["isPaidTimeOff"]) > 0;
             result.IsHoliday = ((byte)reader["isHoliday"]) > 0;
+            return result;
+        }
+
+        public static IEnumerable<WorkdayModel> LoadDaysInRange(SQLiteConnection conn, int userId, DateTime firstDay, DateTime lastDay)
+        {
+            var result = new List<WorkdayModel>((lastDay - firstDay).Days + 2);
+            for (DateTime currentDay = firstDay; 
+                currentDay.Date <= lastDay.Date; 
+                currentDay = currentDay.AddDays(1))
+            {
+                var workday = Load(conn, userId, currentDay);
+                if( workday != null ) result.Add( workday );
+            }
             return result;
         }
 

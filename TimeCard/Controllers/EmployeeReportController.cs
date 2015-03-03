@@ -16,15 +16,17 @@ namespace TimeCard.Controllers
             int userId = HoursUtil.GetCurrentUserId(User);
             if (userId == 0) return Redirect("/");
 
+
             SQLiteConnection conn = HoursUtil.GetConnection();
-            WorkdayModel day = WorkdayModel.Load(conn, userId, new DateTime( 2014,11,3 ));
+            UserModel user = UserModel.Load(conn, userId);
+            var days = WorkdayModel.LoadDaysInRange(conn, userId, DateTime.Now.AddDays(-7), DateTime.Now);
             conn.Close();
 
-            if (day == null) return Redirect("/");
-
-            ViewBag.Workday = day;
-            ViewBag.User = day.User;
+            ViewBag.User = user;
+            ViewBag.Days = days;
             return View();
         }
+
+
     }
 }

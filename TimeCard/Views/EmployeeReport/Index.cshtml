@@ -1,21 +1,31 @@
-﻿@{
+﻿@using TimeCard.Models
+
+@{
     ViewBag.Title = "Report";
 }
 
 <div class="WorkerStatus">
-    <h2>You're currently @ViewBag.User.Name</h2>
+    <h2>Last @ViewBag.Days.Count days for @ViewBag.User.Name</h2>
 </div>
 
-@if (ViewBag.Workday.IsHoliday) {
-    <p>holiday!</p>
-} else if(ViewBag.Workday.IsPaidTimeOff) {
-    <p>holiday!</p>
-}
-else {
-    <table>
-        <tr><th>Start Time</th><td>@ViewBag.Workday.StartIn</td></tr>
-        <tr><th>Lunch Out</th><td>@ViewBag.Workday.LunchOut</td></tr>
-        <tr><th>Lunch Return</th><td>@ViewBag.Workday.LunchIn</td></tr>
-        <tr><th>End Time</th><td>@ViewBag.Workday.EndOut</td></tr>
-    </table>
-}
+<table class="table table-striped">
+    <tr><th>Date</th><th>Type</th><th>Start Time</th><th>Lunch Out</th><th>Lunch Return</th><th>End Time</th></tr>
+    @foreach (WorkdayModel workday in ViewBag.Days)
+    {
+    <tr>
+        <td>@workday.Day.ToShortDateString()</td>
+        <td>@if(workday.IsHoliday){
+                <div>holiday!</div>
+            } else if(workday.IsPaidTimeOff){
+                <div>day off!</div>
+            } else {
+                <div>normal day</div>
+            }
+        </td>
+        <td>@workday.StartIn.ToShortTimeString()</td>
+        <td>@workday.LunchOut.ToShortTimeString()</td>
+        <td>@workday.LunchIn.ToShortTimeString()</td>
+        <td>@workday.EndOut.ToShortTimeString()</td>
+    </tr>
+    }
+</table>
