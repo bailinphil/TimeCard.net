@@ -8,6 +8,11 @@ The beginning step of this project is to simply allow employees to punch in and 
 
 In the future, I will be adding an Administrator page where superusers may edit schedules and view reports. But that doesn't really exist yet. More extensive (and prettier) reporting for employees is also in the plan, as well as change logs.
 
+# Building & Running
+This project should build out-of-the-box in Visual Studio; I used VS Community 2013 to build it. 
+
+I've included the actual database files, which is annoying in that they generate changes as you simply use the app. However, I believe that was necessary in order to have the project run immediately when you clone the repo and open up the solution.
+
 # Implementation
 ## Models
 The records of time worked are stored in a SQLite database, which is related to the built-in LocalDB which manages identities with the default system provided by Asp.Net. In a real world deployment, I probably wouldn't use two separate databases, tied together in such a way. However, it was quicker for me to make use of the SQLite database initialization that I'd previously done, instead of learn all the details of Microsoft's Model designs and Migrations.
